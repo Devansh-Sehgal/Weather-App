@@ -11,8 +11,8 @@ const form = document.getElementById('locationInput');
 const search = document.querySelector('.search');
 const btn = document.querySelector('.submit');
 const cities = document.querySelectorAll('.city');
-const apiKey = "35332cd8afaccfbbdbe59a28692df8cb"; // Your OpenWeatherMap API key
-const unsplashApiKey = "cIPowvtHUx2oqc4pSFGsNOGSl6Eg8vD4GMLqJSb1Dko"; // Your Unsplash API key
+const apiKey = "35332cd8afaccfbbdbe59a28692df8cb"; 
+const unsplashApiKey = "cIPowvtHUx2oqc4pSFGsNOGSl6Eg8vD4GMLqJSb1Dko"; 
 
 let cityInput = "";
 
