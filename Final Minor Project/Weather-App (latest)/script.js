@@ -11,10 +11,90 @@ const form = document.getElementById('locationInput');
 const search = document.querySelector('.search');
 const btn = document.querySelector('.submit');
 const cities = document.querySelectorAll('.city');
-const apiKey = "35332cd8afaccfbbdbe59a28692df8cb"; 
-const unsplashApiKey = "cIPowvtHUx2oqc4pSFGsNOGSl6Eg8vD4GMLqJSb1Dko"; 
+const apiKey = "35332cd8afaccfbbdbe59a28692df8cb";
+const unsplashApiKey = "cIPowvtHUx2oqc4pSFGsNOGSl6Eg8vD4GMLqJSb1Dko";
+const iconElement = document.querySelector(".icon-condition i");
+
 
 let cityInput = "";
+
+const fetchWeatherData = async () => {
+    setLoading(true);
+    const weatherDetailsContainer = document.querySelector('.weather-details');
+    const weatherInfoContainer = document.querySelector('.weather-info');
+
+    try {
+        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityInput}&units=metric&appid=${apiKey}`);
+        const data = await res.json();
+
+        if (!data.main) {
+            alert("City not found. Please try again.");
+            weatherDetailsContainer.style.display = 'none';
+            weatherInfoContainer.style.display = 'none';
+            document.querySelector(".forecast-container").style.display = "none";
+            return;
+        }
+
+        // Update weather details
+        temp.innerHTML = `${data.main.temp.toFixed(1)}&#176;C`;
+        conditionOutput.innerHTML = data.weather[0].description;
+        const date = new Date(data.dt * 1000);
+        dateOutput.innerHTML = `${dayOfTheWeek(date)} ${date.getDate()}, ${date.getMonth() + 1} ${date.getFullYear()}`;
+        nameOutput.innerHTML = data.name;
+
+        cloudOutput.innerHTML = `${data.clouds.all}%`;
+        humidityOutput.innerHTML = `${data.main.humidity}%`;
+        windOutput.innerHTML = `${data.wind.speed} m/s`;
+
+        // Show weather details container
+        weatherDetailsContainer.style.display = 'block';
+        weatherInfoContainer.style.display = 'block';
+
+        // Get the weather condition (e.g., 'Clear', 'Clouds', 'Rain', etc.)
+        const weatherCondition = data.weather[0].main.toLowerCase();
+        iconElement.classList.remove("fas", "fa-sun", "fa-cloud", "fa-cloud-rain", "fa-snowflake", "fa-smog");
+
+        // Update icon based on weather condition
+        if (weatherCondition === "clear") {
+            iconElement.classList.add("fas", "fa-sun");
+        } else if (weatherCondition === "clouds") {
+            iconElement.classList.add("fas", "fa-cloud");
+        } else if (weatherCondition === "rain") {
+            iconElement.classList.add("fas", "fa-cloud-rain");
+        } else if (weatherCondition === "snow") {
+            iconElement.classList.add("fas", "fa-snowflake");
+        } else if (weatherCondition === "fog") {
+            iconElement.classList.add("fas", "fa-smog");
+        } else if (weatherCondition === "haze") {
+            iconElement.classList.add("fa-solid", "fa-smog");
+        } else {
+            iconElement.classList.add("fas", "fa-weather");
+        }
+
+        // Update the favicon and title with static images based on OpenWeatherMap condition
+        await updateTitleAndFavicon(weatherCondition);
+
+        // Fetch background image based on city and weather condition
+        await fetchBackgroundImage(cityInput, weatherCondition);
+
+        // Fetch future weather data
+        await getFutureData(data.coord.lat, data.coord.lon);
+
+        // Show alerts based on weather conditions
+        showAlerts(data);
+
+        // Suggest activities based on weather conditions
+        suggestActivities(data);
+
+    } catch (error) {
+        console.error("Error fetching weather data:", error);
+        alert("Failed to fetch weather data. Please try again later.");
+        weatherDetailsContainer.style.display = 'none';
+    } finally {
+        setLoading(false);
+    }
+};
+
 
 // City selection from the list
 cities.forEach((city) => {
@@ -89,64 +169,6 @@ const setLoading = (isLoading) => {
     }
 };
 
-const fetchWeatherData = async () => {
-    setLoading(true);
-    const weatherDetailsContainer = document.querySelector('.weather-details');
-    const weatherInfoContainer = document.querySelector('.weather-info');
-
-    try {
-        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${cityInput}&units=metric&appid=${apiKey}`);
-        const data = await res.json();
-
-        if (!data.main) {
-            alert("City not found. Please try again.");
-            weatherDetailsContainer.style.display = 'none';
-            weatherInfoContainer.style.display = 'none';
-            document.querySelector(".forecast-container").style.display = "none";
-            return;
-        }
-
-        // Update weather details
-        temp.innerHTML = `${data.main.temp.toFixed(1)}&#176;C`;
-        conditionOutput.innerHTML = data.weather[0].description;
-        const date = new Date(data.dt * 1000);
-        dateOutput.innerHTML = `${dayOfTheWeek(date)} ${date.getDate()}, ${date.getMonth() + 1} ${date.getFullYear()}`;
-        nameOutput.innerHTML = data.name;
-        icon.src = `http://openweathermap.org/img/wn/${data.weather[0].icon}.png`; // Optionally keep the OpenWeather icon for display
-        cloudOutput.innerHTML = `${data.clouds.all}%`;
-        humidityOutput.innerHTML = `${data.main.humidity}%`;
-        windOutput.innerHTML = `${data.wind.speed} m/s`;
-
-        // Show weather details container
-        weatherDetailsContainer.style.display = 'block';
-        weatherInfoContainer.style.display = 'block';
-
-        // Get the weather condition (e.g., 'Clear', 'Clouds', 'Rain', etc.)
-        const weatherCondition = data.weather[0].main.toLowerCase();
-
-        // Update the favicon and title with static images based on OpenWeatherMap condition
-        await updateTitleAndFavicon(weatherCondition);
-
-        // Fetch background image based on city and weather condition
-        await fetchBackgroundImage(cityInput, weatherCondition);
-
-        // Fetch future weather data
-        await getFutureData(data.coord.lat, data.coord.lon);
-
-        // Show alerts based on weather conditions
-        showAlerts(data);
-
-        // Suggest activities based on weather conditions
-        suggestActivities(data);
-
-    } catch (error) {
-        console.error("Error fetching weather data:", error);
-        alert("Failed to fetch weather data. Please try again later.");
-        weatherDetailsContainer.style.display = 'none';
-    } finally {
-        setLoading(false);
-    }
-};
 
 
 // Update the favicon and title dynamically based on the weather condition
