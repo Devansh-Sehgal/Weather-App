@@ -8,18 +8,24 @@
     <meta name="author" content="Devansh">
     <title>Weather App</title>
     <link rel="stylesheet" href="styles.css">
-    <link id="favicon" rel="icon" href="images/weather.jpeg" type="image/png">
+    <link id="favicon" rel="icon" href="images/weather.webp" type="image/webp">
 
-    
+
     <link rel="preload" href="styles.css" as="style">
     <link rel="preload" href="script.js" as="script">
 
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Urbanist:ital,wght@0,100..900;1,100..900&family=Pacifico&family=Sour+Gummy:ital,wght@0,100..900;1,100..900&family=Rubik+Wet+Paint&display=swap" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" as="font"
+        type="font/woff2" crossorigin="anonymous">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        media="print" onload="this.media='all'">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" media="print" onload="this.media='all'">
+    <link rel="preconnect" href="https://openstreetmap.org" />
+    <link rel="preconnect" href="https://nominatim.openstreetmap.org" />
+    <link rel="preconnect" href="https://openweathermap.org" />
+    <link rel="preconnect" href="https://api.openweathermap.org" />
+    <link rel="preconnect" href="https://unsplash.com" />
 
-    
     <meta property="og:image" content="images/weather.jpeg">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Weather App">
@@ -30,27 +36,52 @@
 <body>
 
     <div class="weather-app">
-        
+
         <div class="alert-container" style="display: none;"></div>
 
+        <h1 class="brand  roboto-bold">The Weather</h1>
         <div class="container">
-            <h1 class="brand pacifico-regular-brand rubik-wet-paint-regular-brand roboto-bold">The Weather</h1>
 
             <div class="weather-input-container">
-                <div class="weather-info">
-                    <h1 class="temp"></h1>
-                    <div class="city-time">
-                        <h1 class="name"></h1>
-                        <small>
-                            <span class="time"></span> - <span class="date" style="font-size: 1.7rem; vertical-align: middle;"></span>
-                        </small>
+
+                <div class="top-container">
+
+                    <div class="weather-info">
+                        <h1 class="temp">Loading...</h1>
+                        <div class="city-time">
+                            <h1 class="name"></h1>
+                            <small>
+                                <span class="time"></span> - <span class="date"></span>
+                            </small>
+                        </div>
+                        <div class="weather"></div>
+                        <div class="icon-condition">
+                            <i class="fas fa-sun"></i>
+                            <span class="condition" style="font-size: 1.7rem;"></span>
+                        </div>
+                        <div class="activity"></div>
                     </div>
-                    <div class="weather"></div>
-                    <div class="icon-condition">
-                        <i class="fas fa-sun"></i>
-                        <span class="condition" style="font-size: 1.7rem;"></span>
+
+
+
+                    <div class="panel">
+                        <form action="" id="locationInput" role="search" aria-label="Location search">
+                            <label for="locationSearch" class="sr-only">Enter location</label>
+                            <input id="locationSearch" type="text" class="search" placeholder="Search Location..."
+                                aria-label="Location search input">
+                            <button type="submit" class="submit" aria-label="Submit search">
+                                <i class="fas fa-search"></i> Submit
+                            </button>
+                        </form>
+
+                        <div class="recent-container">
+                            <h3><i class="fas fa-history"></i> Recent Searches</h3>
+                            <ul class="cities"> </ul>
+                            <button class="clear" aria-label="Submit search">
+                                <i class="fas fa-times"></i>Clear
+                            </button>
+                        </div>
                     </div>
-                    <div class="activity"></div>
                 </div>
 
                 <div class="weather-details">
@@ -71,23 +102,7 @@
                     </ul>
                 </div>
 
-                <div class="panel">
-                    
-                    <form action="" id="locationInput" role="search" aria-label="Location search">
-                        <label for="locationSearch" class="sr-only">Enter location</label>
-                        <input id="locationSearch" type="text" class="search" placeholder="Search Location..." aria-label="Location search input">
-                        <button type="submit" class="submit" aria-label="Submit search">
-                            <i class="fas fa-search"></i> Submit
-                        </button>
-                    </form>
 
-                    <ul class="cities">
-                        <li class="city" role="button" tabindex="0">New York</li>
-                        <li class="city" role="button" tabindex="0">Cali</li>
-                        <li class="city" role="button" tabindex="0">Paris</li>
-                        <li class="city" role="button" tabindex="0">Tokyo</li>
-                    </ul>
-                </div>
             </div>
 
             <div class="forecast-container">
@@ -97,7 +112,7 @@
         </div>
     </div>
 
-    
+
     <script src="script.js" defer></script>
 </body>
 

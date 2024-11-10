@@ -15,7 +15,6 @@ const apiKey = "35332cd8afaccfbbdbe59a28692df8cb";
 const unsplashApiKey = "cIPowvtHUx2oqc4pSFGsNOGSl6Eg8vD4GMLqJSb1Dko";
 const iconElement = document.querySelector(".icon-condition i");
 
-
 let cityInput = "";
 
 const fetchWeatherData = async () => {
@@ -34,8 +33,10 @@ const fetchWeatherData = async () => {
             document.querySelector(".forecast-container").style.display = "none";
             return;
         }
+        saveRecentSearch(cityInput);
 
-        // Update weather details
+
+        
         temp.innerHTML = `${data.main.temp.toFixed(1)}&#176;C`;
         conditionOutput.innerHTML = data.weather[0].description;
         const date = new Date(data.dt * 1000);
@@ -46,15 +47,16 @@ const fetchWeatherData = async () => {
         humidityOutput.innerHTML = `${data.main.humidity}%`;
         windOutput.innerHTML = `${data.wind.speed} m/s`;
 
-        // Show weather details container
+        
         weatherDetailsContainer.style.display = 'block';
         weatherInfoContainer.style.display = 'block';
 
-        // Get the weather condition (e.g., 'Clear', 'Clouds', 'Rain', etc.)
+        
         const weatherCondition = data.weather[0].main.toLowerCase();
         iconElement.classList.remove("fas", "fa-sun", "fa-cloud", "fa-cloud-rain", "fa-snowflake", "fa-smog");
+        iconElement.classList.add("fa-spin")
 
-        // Update icon based on weather condition
+        
         if (weatherCondition === "clear") {
             iconElement.classList.add("fas", "fa-sun");
         } else if (weatherCondition === "clouds") {
@@ -66,24 +68,17 @@ const fetchWeatherData = async () => {
         } else if (weatherCondition === "fog") {
             iconElement.classList.add("fas", "fa-smog");
         } else if (weatherCondition === "haze") {
-            iconElement.classList.add("fa-solid", "fa-smog");
+            iconElement.classList.add("fas", "fa-feather");
         } else {
-            iconElement.classList.add("fas", "fa-weather");
+            iconElement.classList.add("fas", "fa-feather");
         }
 
-        // Update the favicon and title with static images based on OpenWeatherMap condition
-        await updateTitleAndFavicon(weatherCondition);
-
-        // Fetch background image based on city and weather condition
         await fetchBackgroundImage(cityInput, weatherCondition);
 
-        // Fetch future weather data
         await getFutureData(data.coord.lat, data.coord.lon);
 
-        // Show alerts based on weather conditions
         showAlerts(data);
 
-        // Suggest activities based on weather conditions
         suggestActivities(data);
 
     } catch (error) {
@@ -96,7 +91,7 @@ const fetchWeatherData = async () => {
 };
 
 
-// City selection from the list
+
 cities.forEach((city) => {
     city.addEventListener('click', async (e) => {
         cityInput = e.target.innerHTML;
@@ -104,7 +99,7 @@ cities.forEach((city) => {
     });
 });
 
-// Form submission
+
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (search.value.length === 0) {
@@ -116,13 +111,12 @@ form.addEventListener('submit', async (e) => {
     }
 });
 
-// Get the day of the week
+
 const dayOfTheWeek = (date) => {
     const weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     return weekday[date.getDay()];
 };
 
-// Get location name based on coordinates
 const getLocationName = async (lat, long) => {
     const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${long}&format=json`;
     const res = await fetch(url);
@@ -170,16 +164,6 @@ const setLoading = (isLoading) => {
 };
 
 
-
-// Update the favicon and title dynamically based on the weather condition
-const updateTitleAndFavicon = async (weatherCondition) => {
-    const iconUrl = getWeatherIcon(weatherCondition);  // Get the icon based on the weather condition
-
-    // Update favicon
-    const favicon = document.getElementById('favicon');
-    favicon.href = iconUrl;  // Set the favicon URL dynamically
-
-};
 
 // Helper function to get the appropriate static weather icon based on OpenWeatherMap condition
 const getWeatherIcon = (condition) => {
@@ -398,3 +382,68 @@ const displayForecast = (dailyForecasts) => {
         forecastDaysContainer.appendChild(dayDiv);
     });
 };
+
+
+
+const panel = document.querySelector('.panel');
+const clear = document.querySelector('.clear');
+const citiesContainer = document.querySelector('.cities'); // This will display recent searches
+const recentSearchesLimit = 5; // Limit the number of recent searches
+
+
+const getRecentSearches = () => {
+    const recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
+    return recentSearches;
+};
+
+
+const saveRecentSearch = (city) => {
+    let recentSearches = getRecentSearches();
+
+
+    if (!recentSearches.includes(city)) {
+        recentSearches.unshift(city);
+    }
+
+
+    if (recentSearches.length > recentSearchesLimit) {
+        recentSearches = recentSearches.slice(0, recentSearchesLimit);
+    }
+
+    localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+    displayRecentSearches();
+};
+
+
+const displayRecentSearches = () => {
+    const recentSearches = getRecentSearches();
+    citiesContainer.innerHTML = '';
+    if (recentSearches.length > 0) {
+        clear.style.display = "flex";
+    }
+    recentSearches.forEach(city => {
+        const li = document.createElement('li');
+        li.classList.add('city');
+        li.textContent = city;
+        li.role = "button";
+        li.tabIndex = "0";
+        li.addEventListener('click', async () => {
+            cityInput = city;
+            await fetchWeatherData();
+        });
+        citiesContainer.appendChild(li);
+    });
+};
+
+clear.addEventListener("click", () => {
+    const recentSearches = getRecentSearches();
+    if (recentSearches) {
+        citiesContainer.innerHTML = ""
+        localStorage.clear();
+        clear.style.display = "none";
+    }
+})
+
+
+
+document.addEventListener('DOMContentLoaded', displayRecentSearches);
